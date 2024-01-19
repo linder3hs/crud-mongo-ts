@@ -1,9 +1,10 @@
 import express from "express";
+import { userRouter } from "./components";
 
 const app = express();
 
-app.get("/", (_req, res) => {
-  res.send("Hola mundo");
-});
+app.use(express.json());
+
+app.use("/api/v1/users", userRouter);
 
 export default app;
