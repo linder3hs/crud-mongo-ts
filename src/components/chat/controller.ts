@@ -4,18 +4,18 @@ import pusher from "../../services/pusher";
 
 export async function list(req: Request, res: Response): Promise<Response> {
   try {
-    const id = req.params.id;
-    const users = await prisma.user.findMany({
+    const { transmiterId, receiverId } = req.params;
+
+    const chats = await prisma.chat.findMany({
       where: {
-        NOT: {
-          id,
-        },
+        transmitterUserId: transmiterId,
+        receiverUserId: receiverId,
       },
     });
 
     return res.json({
       ok: true,
-      data: users,
+      data: chats,
     });
   } catch (error) {
     console.log(error);
@@ -26,19 +26,19 @@ export async function list(req: Request, res: Response): Promise<Response> {
   }
 }
 
-export async function store(req: Request, res: Response): Promise<Response> {
+export async function store(req: Request, res: Response) {
   try {
-    const user = await prisma.user.create({
+    const chat = await prisma.chat.create({
       data: req.body,
     });
 
-    pusher.trigger("user-channels", "store-user", {
-      user,
+    pusher.trigger("chat-channels", "store-chat", {
+      chat,
     });
 
-    return res.status(201).json({
+    return res.json({
       ok: true,
-      data: user,
+      data: chat,
     });
   } catch (error) {
     console.log(error);
