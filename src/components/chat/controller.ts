@@ -6,16 +6,29 @@ export async function list(req: Request, res: Response): Promise<Response> {
   try {
     const { transmiterId, receiverId } = req.params;
 
-    const chats = await prisma.chat.findMany({
+    const chats1 = await prisma.chat.findMany({
       where: {
         transmitterUserId: transmiterId,
         receiverUserId: receiverId,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    const chats2 = await prisma.chat.findMany({
+      where: {
+        transmitterUserId: receiverId,
+        receiverUserId: transmiterId,
+      },
+      orderBy: {
+        createdAt: "asc",
       },
     });
 
     return res.json({
       ok: true,
-      data: chats,
+      data: chats1.concat(chats2),
     });
   } catch (error) {
     console.log(error);
@@ -36,7 +49,7 @@ export async function store(req: Request, res: Response) {
       chat,
     });
 
-    return res.json({
+    return res.status(201).json({
       ok: true,
       data: chat,
     });
